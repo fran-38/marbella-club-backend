@@ -1,0 +1,4 @@
+﻿node_modules/
+src/data/pedidos.db
+src/data/pedidos.db-shm
+src/data/pedidos.db-wal

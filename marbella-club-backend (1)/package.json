@@ -1,0 +1,22 @@
+{
+  "name": "marbella-club-backend",
+  "version": "1.0.0",
+  "description": "Backend propio (Node.js/Express) con capa RAG y base de datos SQLite para el asistente conversacional de pedidos de Marbella Club Cevicheria. Proyecto de tesis - Ingenieria de Sistemas UCSM.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "test:rag": "node src/testRag.js",
+    "init:db": "node src/initDb.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
