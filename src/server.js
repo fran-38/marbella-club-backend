@@ -29,6 +29,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/whatsapp", require("./whatsapp"));
 
 // ---------------------------------------------------------------------------
 // Salud del servicio
