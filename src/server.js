@@ -14,7 +14,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const { initRag, buscarEnMenu, getMenuCompleto } = require("./ragEngine");
+const { initRag, buscarEnMenu, buscarConAclaracion, getMenuCompleto } = require("./ragEngine");
 const {
   initSchema,
   crearPedido,
@@ -29,7 +29,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/whatsapp", require("./whatsapp"));
 
 // ---------------------------------------------------------------------------
 // Salud del servicio
@@ -48,13 +47,14 @@ app.post("/rag/query", async (req, res) => {
     if (!consulta || typeof consulta !== "string") {
       return res.status(400).json({ error: "Falta el campo 'consulta' (string)." });
     }
-    const resultados = await buscarEnMenu(consulta, topK || 3);
+    const margen = Number(process.env.MARGEN_ACLARACION) || 0.05;
+    const r = await buscarConAclaracion(consulta, topK || 3, margen);
+    const formato = (x) => ({ ...x.item, similitud: Number(x.score.toFixed(4)) });
     res.json({
       consulta,
-      resultados: resultados.map((r) => ({
-        ...r.item,
-        similitud: Number(r.score.toFixed(4)),
-      })),
+      requiere_aclaracion: r.ambiguo,
+      candidatos: r.candidatos.map(formato),
+      resultados: r.resultados.map(formato),
     });
   } catch (err) {
     console.error(err);

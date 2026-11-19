@@ -7,7 +7,8 @@ const fs = require("fs");
 const path = require("path");
 
 const MENU_PATH = path.join(__dirname, "data", "menu.json");
-const EMBEDDINGS_CACHE_PATH = path.join(__dirname, "data", "menu.embeddings.json");
+const MODELO = process.env.EMBED_MODEL || "Xenova/all-MiniLM-L6-v2";
+const EMBEDDINGS_CACHE_PATH = path.join(__dirname, "data", `menu.embeddings.${MODELO.split("/").pop()}.json`);
 
 let extractorPromise = null;
 let menuItems = [];
@@ -26,7 +27,7 @@ function textoParaEmbedding(item) {
 async function getExtractor() {
   if (!extractorPromise) {
     const { pipeline } = await import("@xenova/transformers");
-    extractorPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+    extractorPromise = pipeline("feature-extraction", MODELO);
   }
   return extractorPromise;
 }
@@ -94,8 +95,20 @@ async function buscarEnMenu(consulta, topK = 3) {
   return resultados.slice(0, topK);
 }
 
+async function buscarConAclaracion(consulta, topK = 3, margen = 0.05) {
+  const resultados = await buscarEnMenu(consulta, Math.max(topK, 2));
+  const diferencia = resultados[0].score - resultados[1].score;
+  const ambiguo = diferencia < margen;
+  return {
+    ambiguo,
+    diferencia,
+    candidatos: ambiguo ? resultados.filter((r) => resultados[0].score - r.score < margen).slice(0, topK) : [resultados[0]],
+    resultados,
+  };
+}
+
 function getMenuCompleto() {
   return menuItems;
 }
 
-module.exports = { initRag, buscarEnMenu, getMenuCompleto };
+module.exports = { initRag, buscarEnMenu, buscarConAclaracion, getMenuCompleto };
