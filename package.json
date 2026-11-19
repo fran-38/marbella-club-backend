@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "test:rag": "node src/testRag.js",
+    "test:aclaracion": "node src/testAclaracion.js",
     "init:db": "node src/initDb.js"
   },
   "engines": {
